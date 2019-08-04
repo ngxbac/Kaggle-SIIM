@@ -14,6 +14,7 @@ import cv2
 from models import *
 from augmentation import *
 from dataset import SIIMDataset
+from utils import *
 
 
 device = torch.device('cuda')
@@ -93,43 +94,31 @@ def predict_valid():
 
     preds, gts = predict(model, loader)
 
+    threshold = 0.900000
+    min_size = 3500
+
+    loss, dice, dice_neg, dice_pos = \
+        compute_metric(gts, preds)
+
+    print('\n')
+    print('loss     = %0.5f\n' % (loss))
+    print('dice_neg = %0.5f\n' % (dice_neg))
+    print('dice_pos = %0.5f\n' % (dice_pos))
+    print('dice     = %0.5f\n' % (dice))
+    print('\n')
+
+    kaggle_score, kaggle_neg_score, kaggle_pos_score = \
+        compute_kaggle_lb(gts, preds, threshold, min_size)
+
+    print('kaggle_neg_score = %0.5f\n' % (kaggle_neg_score))
+    print('kaggle_pos_score = %0.5f\n' % (kaggle_pos_score))
+    print('kaggle_score     = %0.5f\n' % (kaggle_score))
+
     best_score, best_th = threshold_search(preds, gts)
     print(f"Best score {best_score}, best_threshold: {best_th}")
 
     os.makedirs("./prediction/unet34/fold_0/", exist_ok=True)
     np.save(f"./prediction/unet34/fold_0/valid.npy", preds)
-
-
-def post_process(probability, threshold, min_size=3500):
-
-    mask = cv2.threshold(probability, threshold, 1, cv2.THRESH_BINARY)[1]
-    num_component, component = cv2.connectedComponents(mask.astype(np.uint8))
-
-    predict = np.zeros((1024,1024), np.float32)
-    num = 0
-    for c in range(1,num_component):
-        p = (component==c)
-        if p.sum()>min_size:
-            predict[p] = 1
-            num += 1
-    return predict, num
-
-
-def run_length_encode(component):
-    component = component.T.flatten()
-    start  = np.where(component[1: ] > component[:-1])[0]+1
-    end    = np.where(component[:-1] > component[1: ])[0]+1
-    length = end-start
-
-    rle = []
-    for i in range(len(length)):
-        if i==0:
-            rle.extend([start[0],length[0]])
-        else:
-            rle.extend([start[i]-end[i-1],length[i]])
-
-    rle = ' '.join([str(r) for r in rle])
-    return rle
 
 
 def predict_test():
@@ -193,4 +182,5 @@ def predict_test():
 
 
 if __name__ == '__main__':
-    predict_test()
+    # predict_test()
+    predict_valid()
