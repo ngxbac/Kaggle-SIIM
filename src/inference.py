@@ -157,7 +157,7 @@ def predict_test():
 
     preds, gts = predict(model, loader)
 
-    threshold = 0.28
+    threshold = 0.34
     min_size = 3500
 
     encoded_pixels = []
@@ -178,9 +178,9 @@ def predict_test():
     df = pd.read_csv(test_csv)
     df['EncodedPixels'] = encoded_pixels
     os.makedirs("./prediction/unet34/fold_0/", exist_ok=True)
-    df.to_csv("./prediction/unet34/fold_0/submission.csv", index=False)
+    df.to_csv("./prediction/unet34/fold_0/submission_30_th034.csv", index=False)
 
 
 if __name__ == '__main__':
-    # predict_test()
-    predict_valid()
+    predict_test()
+    # predict_valid()

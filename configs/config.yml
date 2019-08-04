@@ -69,9 +69,9 @@ stages:
 
     scheduler_params:
       scheduler: OneCycleLR
-      num_steps: &num_epochs 20
+      num_steps: &num_epochs 30
       lr_range: [0.0005, 0.00001]
-      warmup_steps: 3
+      warmup_steps: 5
       momentum_range: [0.85, 0.95]
 
     state_params:

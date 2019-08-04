@@ -100,7 +100,7 @@ def compute_kaggle_lb(test_truth, test_probability, threshold, min_size):
         predict, num_component = post_process(probability, threshold, min_size)
 
         score = kaggle_metric_one(predict, truth)
-        print('\r%3d  %s   %0.5f  %0.5f'% (b, predict.shape, probability.mean(), probability.max()), end='', flush=True)
+        # print('\r%3d  %s   %0.5f  %0.5f'% (b, predict.shape, probability.mean(), probability.max()), end='', flush=True)
 
         if truth.sum()==0:
             kaggle_neg.append(score)
