@@ -301,11 +301,40 @@ def dice_apex(outputs, targets, eps: float = 1e-7, activation: str = "Sigmoid"):
     targets = targets.float()
 
     outputs = activation_fn(outputs)
-    outputs = (outputs >= 0.5).float()
-    intersection = torch.sum(targets * outputs)
-    sum_ = torch.sum(targets) + torch.sum(outputs) + eps
 
-    return (2 * intersection + eps) / sum_
+    batch_size = len(targets)
+
+    with torch.no_grad():
+        outputs = outputs.view(batch_size,-1)
+        targets = targets.view(batch_size,-1)
+        assert(outputs.shape==targets.shape)
+
+        probability = outputs
+        p = (probability>0.5).float()
+        t = (targets>0.5).float()
+
+        t_sum = t.sum(-1)
+        p_sum = p.sum(-1)
+        neg_index = torch.nonzero(t_sum==0)
+        pos_index = torch.nonzero(t_sum>=1)
+        #print(len(neg_index), len(pos_index))
+
+
+        dice_neg = (p_sum == 0).float()
+        dice_pos = 2* (p*t).sum(-1)/((p+t).sum(-1))
+
+        dice_neg = dice_neg[neg_index]
+        dice_pos = dice_pos[pos_index]
+        dice     = torch.cat([dice_pos,dice_neg])
+
+        dice_neg = np.nan_to_num(dice_neg.mean().item(),0)
+        dice_pos = np.nan_to_num(dice_pos.mean().item(),0)
+        dice = dice.mean().item()
+
+        num_neg = len(neg_index)
+        num_pos = len(pos_index)
+
+    return dice
 
 
 class DiceCallbackApex(MetricCallback):
