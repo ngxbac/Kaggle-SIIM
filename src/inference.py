@@ -48,7 +48,7 @@ def dice(outputs, targets, eps: float = 1e-7):
 
 def threshold_search(preds, gts):
     scores = []
-    ths = np.arange(0.01, 1, 0.01)
+    ths = np.arange(0.01, 1, 0.1)
     for th in tqdm(ths, total=len(ths)):
         pred_bin = (preds > th).astype(np.float32)
         dice_scores = dice(pred_bin, gts)
@@ -62,8 +62,8 @@ def threshold_search(preds, gts):
 def predict_valid():
     test_csv = './csv/valid_0.csv'
 
-    log_dir = f"/raid/bac/kaggle/logs/siim/test/190730/unet34/fold_0/"
-    root = "/raid/data/kaggle/siim/siim256/"
+    log_dir = f"/raid/bac/kaggle/logs/siim/test/190805/unet34_1024//fold_0/"
+    root = "/raid/data/kaggle/siim/siim1024_2/"
 
     ckp = os.path.join(log_dir, "checkpoints/best.pth")
     model = Unet(
@@ -74,6 +74,7 @@ def predict_valid():
 
     checkpoint = torch.load(ckp)
     model.load_state_dict(checkpoint['model_state_dict'])
+    model = nn.DataParallel(model)
     model = model.to(device)
 
     print("*" * 50)
@@ -87,14 +88,17 @@ def predict_valid():
 
     loader = DataLoader(
         dataset=dataset,
-        batch_size=128,
+        batch_size=32,
         shuffle=False,
         num_workers=8,
     )
 
     preds, gts = predict(model, loader)
 
-    threshold = 0.900000
+    best_score, best_th = threshold_search(preds, gts)
+    print(f"Best score {best_score}, best_threshold: {best_th}")
+
+    threshold = best_th
     min_size = 3500
 
     loss, dice, dice_neg, dice_pos = \
@@ -114,9 +118,6 @@ def predict_valid():
     print('kaggle_pos_score = %0.5f\n' % (kaggle_pos_score))
     print('kaggle_score     = %0.5f\n' % (kaggle_score))
 
-    best_score, best_th = threshold_search(preds, gts)
-    print(f"Best score {best_score}, best_threshold: {best_th}")
-
     os.makedirs("./prediction/unet34/fold_0/", exist_ok=True)
     np.save(f"./prediction/unet34/fold_0/valid.npy", preds)
 
@@ -124,8 +125,8 @@ def predict_valid():
 def predict_test():
     test_csv = './csv/test.csv'
 
-    log_dir = f"/raid/bac/kaggle/logs/siim/test/190730/unet34/fold_0/"
-    root = "/raid/data/kaggle/siim/siim256/"
+    log_dir = f"/raid/bac/kaggle/logs/siim/test/190805/unet34_1024//fold_0/"
+    root = "/raid/data/kaggle/siim/siim1024_2/"
 
     ckp = os.path.join(log_dir, "checkpoints/best.pth")
     model = Unet(
@@ -136,6 +137,7 @@ def predict_test():
 
     checkpoint = torch.load(ckp)
     model.load_state_dict(checkpoint['model_state_dict'])
+    model = nn.DataParallel(model)
     model = model.to(device)
 
     print("*" * 50)
@@ -150,7 +152,7 @@ def predict_test():
 
     loader = DataLoader(
         dataset=dataset,
-        batch_size=128,
+        batch_size=32,
         shuffle=False,
         num_workers=8,
     )
@@ -178,7 +180,7 @@ def predict_test():
     df = pd.read_csv(test_csv)
     df['EncodedPixels'] = encoded_pixels
     os.makedirs("./prediction/unet34/fold_0/", exist_ok=True)
-    df.to_csv(f"./prediction/unet34/fold_0/submission_th{threshold}_more_augs.csv", index=False)
+    df.to_csv(f"./prediction/unet34/fold_0/submission_th{threshold}_1024.csv", index=False)
 
 
 if __name__ == '__main__':

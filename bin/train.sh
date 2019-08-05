@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-export CUDA_VISIBLE_DEVICES=3
+export CUDA_VISIBLE_DEVICES=0,1,2,3
 RUN_CONFIG=config.yml
 
 
 for fold in 0; do
-    LOGDIR=/raid/bac/kaggle/logs/siim/test/190730/unet34/fold_$fold/
+    LOGDIR=/raid/bac/kaggle/logs/siim/test/190805/unet34_1024/fold_$fold/
     catalyst-dl run \
         --config=./configs/${RUN_CONFIG} \
         --logdir=$LOGDIR \
