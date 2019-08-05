@@ -186,5 +186,5 @@ def predict_test():
 
 
 if __name__ == '__main__':
-    predict_test()
-    # predict_valid()
+    # predict_test()
+    predict_valid()

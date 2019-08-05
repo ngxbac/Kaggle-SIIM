@@ -24,6 +24,7 @@ registry.Callback(DiceCallbackApex)
 
 # Register criterions
 registry.Criterion(LabelSmoothingCrossEntropy)
+registry.Criterion(BCEDiceLossApex)
 
 # Register optimizers
 registry.Optimizer(AdamW)
