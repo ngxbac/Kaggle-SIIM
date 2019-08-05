@@ -6,14 +6,15 @@ class ModelRunner(Runner):
     def predict_batch(self, batch: Mapping[str, Any]):
         # import pdb
         # pdb.set_trace()
-        if 'cls_targets' in batch:
-            output, cls_output = self.model(batch["images"])
+        pred = self.model(batch["images"])
+        if len(pred) == 2:
+            output, cls_output = pred
             return {
                 "logits": output,
                 "cls_logits": cls_output
             }
         else:
-            output = self.model(batch["images"])
+            output = pred
             return {
                 "logits": output
             }

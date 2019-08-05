@@ -93,7 +93,8 @@ if __name__ == '__main__':
 
     # directory = Path(args.input)
     # files = [f for f in directory.iterdir() if f.suffix == ".pth"]
-    files = glob.glob(args.input + "/stage1.*.pth")
+    files = glob.glob(args.input + "/stage1/checkpoints/stage1.*.pth")
+    files += glob.glob(args.input + "/stage2/checkpoints/stage1.*.pth")
     assert(len(files) > 1)
 
     net = models.Unet(

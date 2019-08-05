@@ -19,7 +19,7 @@ stages:
     minimize_metric: False
 
   criterion_params:
-    criterion: BCEWithLogitsLoss
+    criterion: BCEFocalLossApex
 
   data_params:
     batch_size: 64
@@ -30,52 +30,24 @@ stages:
     image_size: &image_size 1024
     train_csv: "./csv/train_0.csv"
     valid_csv: "./csv/valid_0.csv"
-#    root: "/raid/data/kaggle/siim/siim1024_2/"
     root: "/raid/data/kaggle/siim/siim256/"
-
-  stage0:
-
-    optimizer_params:
-      optimizer: Adam
-      lr: 0.001
-
-    scheduler_params:
-      scheduler: MultiStepLR
-      milestones: [10, 20, 30]
-      gamma: 0.2
-
-    state_params:
-      num_epochs: 3
-
-    callbacks_params: &callback_params
-      loss:
-        callback: CriterionCallback
-      optimizer:
-        callback: OptimizerCallback
-        accumulation_steps: 2
-      dice:
-        callback: DiceCallbackApex
-      scheduler:
-        callback: SchedulerCallback
-        reduce_metric: *reduce_metric
-      saver:
-        callback: CheckpointCallback
 
   stage1:
 
     optimizer_params:
-      optimizer: Adam
-      lr: 0.0005
+      optimizer: SGD
+      lr: 0.01
 
     scheduler_params:
-      scheduler: OneCycleLR
-      num_steps: &num_epochs 30
-      lr_range: [0.0005, 0.00001]
-      warmup_steps: 5
-      momentum_range: [0.85, 0.95]
+      scheduler: CyclicLRFix
+      step_size_up: 67
+      base_lr: 0.001
+      max_lr: 0.01
+      cycle_momentum: True
+      mode: "exp_range"
 
     state_params:
-      num_epochs: *num_epochs
+      num_epochs: 10
 
     callbacks_params:
       loss:
@@ -88,6 +60,6 @@ stages:
       scheduler:
         callback: SchedulerCallback
         reduce_metric: *reduce_metric
-        # mode: 'batch'
+        mode: 'batch'
       saver:
         callback: CheckpointCallback

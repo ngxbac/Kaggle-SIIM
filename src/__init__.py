@@ -11,8 +11,8 @@ from schedulers import *
 
 # Register models
 registry.Model(Unet)
-registry.Model(model34_DeepSupervion)
-registry.Model(HyperUnet)
+# registry.Model(model34_DeepSupervion)
+# registry.Model(HyperUnet)
 registry.Model(UnetSCSE)
 registry.Model(Res34Unetv4)
 registry.Model(UnetMix)

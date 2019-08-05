@@ -27,7 +27,7 @@ def predict(model, loader):
     with torch.no_grad():
         for dct in tqdm(loader, total=len(loader)):
             images = dct['images'].to(device)
-            pred, _ = model(images)
+            pred = model(images)
             pred = Ftorch.sigmoid(pred)
             pred = pred.detach().cpu().numpy()
             preds.append(pred)
@@ -59,19 +59,19 @@ def threshold_search(preds, gts):
     return best_score, best_th
 
 
-log_dir = f"/raid/bac/kaggle/logs/siim/test/190805/unet34_256_seg_cls/fold_0/"
+log_dir = f"/raid/bac/kaggle/logs/siim/test/190805/unet34_256_multistages/fold_0/"
 root = "/raid/data/kaggle/siim/siim256/"
 
 
 def predict_valid():
     test_csv = './csv/valid_0.csv'
 
-    model = UnetMix(
+    model = Unet(
         encoder_name="resnet34",
         activation='sigmoid',
         classes=1
     )
-    ckp = os.path.join(log_dir, "checkpoints/best.pth")
+    ckp = os.path.join(log_dir, "swa.pth")
     checkpoint = torch.load(ckp)
     model.load_state_dict(checkpoint['model_state_dict'])
     model = nn.DataParallel(model)

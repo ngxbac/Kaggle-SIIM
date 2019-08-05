@@ -38,7 +38,7 @@ class Experiment(ConfigExperiment):
             else:
                 for param in model_.encoder.parameters():
                     param.requires_grad = True
-                print("Freeze backbone model !!!")
+                print("Unfreeze backbone model !!!")
 
         return model_
 
