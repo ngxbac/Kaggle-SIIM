@@ -62,8 +62,9 @@ def threshold_search(preds, gts):
 def predict_valid():
     test_csv = './csv/valid_0.csv'
 
-    log_dir = f"/raid/bac/kaggle/logs/siim/test/190805/unet34_1024//fold_0/"
-    root = "/raid/data/kaggle/siim/siim1024_2/"
+    log_dir = f"/raid/bac/kaggle/logs/siim/test/190805/unet34_256//fold_0/"
+    # root = "/raid/data/kaggle/siim/siim1024_2/"
+    root = "/raid/data/kaggle/siim/siim256/"
 
     ckp = os.path.join(log_dir, "checkpoints/best.pth")
     model = Unet(
@@ -125,8 +126,9 @@ def predict_valid():
 def predict_test():
     test_csv = './csv/test.csv'
 
-    log_dir = f"/raid/bac/kaggle/logs/siim/test/190805/unet34_1024//fold_0/"
-    root = "/raid/data/kaggle/siim/siim1024_2/"
+    log_dir = f"/raid/bac/kaggle/logs/siim/test/190805/unet34_256//fold_0/"
+    # root = "/raid/data/kaggle/siim/siim1024_2/"
+    root = "/raid/data/kaggle/siim/siim256/"
 
     ckp = os.path.join(log_dir, "checkpoints/best.pth")
     model = Unet(
@@ -159,7 +161,7 @@ def predict_test():
 
     preds, gts = predict(model, loader)
 
-    threshold = 0.21
+    threshold = 0.31
     min_size = 3500
 
     encoded_pixels = []
@@ -180,7 +182,7 @@ def predict_test():
     df = pd.read_csv(test_csv)
     df['EncodedPixels'] = encoded_pixels
     os.makedirs("./prediction/unet34/fold_0/", exist_ok=True)
-    df.to_csv(f"./prediction/unet34/fold_0/submission_th{threshold}_1024.csv", index=False)
+    df.to_csv(f"./prediction/unet34/fold_0/submission_th{threshold}_256_shift_scale_rotate.csv", index=False)
 
 
 if __name__ == '__main__':

@@ -21,6 +21,7 @@ def train_aug(image_size=224):
             GridDistortion(),
             OpticalDistortion(distort_limit=2, shift_limit=0.5),
         ], p=0.3),
+        ShiftScaleRotate(shift_limit=0.05, scale_limit=0.1, rotate_limit=15),
         Normalize()
         # RandomSizedCrop(min_max_height=(156, 256), height=h, width=w, p=0.25),
         # ToFloat(max_value=1)

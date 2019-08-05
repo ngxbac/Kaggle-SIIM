@@ -22,7 +22,7 @@ stages:
     criterion: BCEWithLogitsLoss
 
   data_params:
-    batch_size: 32
+    batch_size: 64
     num_workers: 8
     drop_last: False
     # drop_last: True
@@ -30,7 +30,8 @@ stages:
     image_size: &image_size 1024
     train_csv: "./csv/train_0.csv"
     valid_csv: "./csv/valid_0.csv"
-    root: "/raid/data/kaggle/siim/siim1024_2/"
+#    root: "/raid/data/kaggle/siim/siim1024_2/"
+    root: "/raid/data/kaggle/siim/siim256/"
 
   stage0:
 
@@ -51,7 +52,7 @@ stages:
         callback: CriterionCallback
       optimizer:
         callback: OptimizerCallback
-        accumulation_steps: 4
+        accumulation_steps: 2
       dice:
         callback: DiceCallbackApex
       scheduler:
@@ -68,7 +69,7 @@ stages:
 
     scheduler_params:
       scheduler: OneCycleLR
-      num_steps: &num_epochs 50
+      num_steps: &num_epochs 30
       lr_range: [0.0005, 0.00001]
       warmup_steps: 5
       momentum_range: [0.85, 0.95]
