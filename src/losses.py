@@ -1,6 +1,7 @@
 from functools import partial
 from catalyst.dl.utils import criterion
 from catalyst.utils import get_activation_fn
+from catalyst.contrib.criterion import LovaszLossBinary, FocalLossBinary
 
 import torch
 import torch.nn as nn
@@ -104,4 +105,19 @@ class BCEDiceLossApex(nn.Module):
         dice = self.dice_loss(outputs, targets)
         bce = self.bce_loss(outputs, targets)
         loss = dice + bce
+        return loss
+
+
+class BCELovaszLossApex(nn.Module):
+    def __init__(
+        self
+    ):
+        super().__init__()
+        self.bce_loss = nn.BCEWithLogitsLoss()
+        self.lovasz_loss = FocalLossBinary()
+
+    def forward(self, outputs, targets):
+        lovasz = self.lovasz_loss(outputs, targets)
+        bce = self.bce_loss(outputs, targets)
+        loss = lovasz + bce
         return loss

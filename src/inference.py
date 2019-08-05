@@ -59,20 +59,19 @@ def threshold_search(preds, gts):
     return best_score, best_th
 
 
+log_dir = f"/raid/bac/kaggle/logs/siim/test/190805/unet34_256_tune_losvasz//fold_0/"
+root = "/raid/data/kaggle/siim/siim256/"
+
+
 def predict_valid():
     test_csv = './csv/valid_0.csv'
 
-    log_dir = f"/raid/bac/kaggle/logs/siim/test/190805/Res34Unetv4_256//fold_0/"
-    # root = "/raid/data/kaggle/siim/siim1024_2/"
-    root = "/raid/data/kaggle/siim/siim256/"
-
-    ckp = os.path.join(log_dir, "checkpoints/best.pth")
-    model = Res34Unetv4(
-        # encoder_name="resnet34",
-        # activation='sigmoid',
-        # classes=1
+    model = Unet(
+        encoder_name="resnet34",
+        activation='sigmoid',
+        classes=1
     )
-
+    ckp = os.path.join(log_dir, "checkpoints/swa.pth")
     checkpoint = torch.load(ckp)
     model.load_state_dict(checkpoint['model_state_dict'])
     model = nn.DataParallel(model)
@@ -126,17 +125,13 @@ def predict_valid():
 def predict_test():
     test_csv = './csv/test.csv'
 
-    log_dir = f"/raid/bac/kaggle/logs/siim/test/190805/Res34Unetv4_256//fold_0/"
-    # root = "/raid/data/kaggle/siim/siim1024_2/"
-    root = "/raid/data/kaggle/siim/siim256/"
-
-    ckp = os.path.join(log_dir, "checkpoints/best.pth")
-    model = Res34Unetv4(
-        # encoder_name="resnet34",
-        # activation='sigmoid',
-        # classes=1
+    model = Unet(
+        encoder_name="resnet34",
+        activation='sigmoid',
+        classes=1,
+        # center=True
     )
-
+    ckp = os.path.join(log_dir, "checkpoints/swa.pth")
     checkpoint = torch.load(ckp)
     model.load_state_dict(checkpoint['model_state_dict'])
     model = nn.DataParallel(model)
@@ -161,7 +156,7 @@ def predict_test():
 
     preds, gts = predict(model, loader)
 
-    threshold = 0.21
+    threshold = 0.31
     min_size = 3500
 
     encoded_pixels = []
@@ -182,7 +177,7 @@ def predict_test():
     df = pd.read_csv(test_csv)
     df['EncodedPixels'] = encoded_pixels
     os.makedirs("./prediction/unet34/fold_0/", exist_ok=True)
-    df.to_csv(f"./prediction/unet34/fold_0/submission_th{threshold}_Res34Unetv4_256.csv", index=False)
+    df.to_csv(f"./prediction/unet34/fold_0/submission_th{threshold}_unet34_256_focal_swa.csv", index=False)
 
 
 if __name__ == '__main__':
