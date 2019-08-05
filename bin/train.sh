@@ -5,7 +5,7 @@ RUN_CONFIG=config.yml
 
 
 for fold in 0; do
-    LOGDIR=/raid/bac/kaggle/logs/siim/test/190805/unet34_256/fold_$fold/
+    LOGDIR=/raid/bac/kaggle/logs/siim/test/190805/Res34Unetv4_256/fold_$fold/
     catalyst-dl run \
         --config=./configs/${RUN_CONFIG} \
         --logdir=$LOGDIR \

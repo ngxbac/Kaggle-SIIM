@@ -13,6 +13,8 @@ from schedulers import *
 registry.Model(Unet)
 registry.Model(model34_DeepSupervion)
 registry.Model(HyperUnet)
+registry.Model(UnetSCSE)
+registry.Model(Res34Unetv4)
 
 # Register callbacks
 registry.Callback(LabelSmoothCriterionCallback)

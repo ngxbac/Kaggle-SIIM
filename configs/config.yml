@@ -1,8 +1,8 @@
 model_params:
-  model: Unet
-  encoder_name: "resnet34"
-  activation: 'sigmoid'
-  classes: 1
+  model: Res34Unetv4
+#  encoder_name: "resnet34"
+#  activation: 'sigmoid'
+#  classes: 1
 
 args:
   expdir: "src"
@@ -22,7 +22,7 @@ stages:
     criterion: BCEWithLogitsLoss
 
   data_params:
-    batch_size: 64
+    batch_size: 32
     num_workers: 8
     drop_last: False
     # drop_last: True
@@ -52,7 +52,7 @@ stages:
         callback: CriterionCallback
       optimizer:
         callback: OptimizerCallback
-        accumulation_steps: 2
+        accumulation_steps: 4
       dice:
         callback: DiceCallbackApex
       scheduler:
