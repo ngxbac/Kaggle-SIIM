@@ -1,5 +1,6 @@
 from catalyst.dl.core import Callback, RunnerState, MetricCallback
 from catalyst.dl.callbacks import CriterionCallback
+from catalyst.contrib.criterion import FocalLossBinary
 from catalyst.dl.utils.criterion import accuracy
 from catalyst.utils import get_activation_fn
 import torch
@@ -364,3 +365,71 @@ class DiceCallbackApex(MetricCallback):
             eps=eps,
             activation=activation
         )
+
+
+class SIIMCriterionCallback(Callback):
+    def __init__(
+        self,
+        input_key: str = "targets",
+        cls_input_key: str = "cls_targets",
+        output_key: str = "logits",
+        cls_output_key: str = "cls_logits",
+        prefix: str = "loss",
+        criterion_key: str = None,
+        loss_key: str = None,
+        multiplier: float = 1.0
+    ):
+        self.input_key = input_key
+        self.output_key = output_key
+        self.prefix = prefix
+        self.criterion_key = criterion_key
+        self.loss_key = loss_key
+        self.multiplier = multiplier
+        self.cls_input_key = cls_input_key
+        self.cls_output_key = cls_output_key
+
+        self.cls_criterion = FocalLossBinary()
+
+    def _add_loss_to_state(self, state: RunnerState, loss):
+        if self.loss_key is None:
+            if state.loss is not None:
+                if isinstance(state.loss, list):
+                    state.loss.append(loss)
+                else:
+                    state.loss = [state.loss, loss]
+            else:
+                state.loss = loss
+        else:
+            if state.loss is not None:
+                assert isinstance(state.loss, dict)
+                state.loss[self.loss_key] = loss
+            else:
+                state.loss = {self.loss_key: loss}
+
+    def _compute_loss(self, state: RunnerState, criterion):
+        seg_loss = criterion(
+            state.output[self.output_key],
+            state.input[self.input_key]
+        )
+
+        cls_loss = self.cls_criterion(
+            state.output[self.cls_output_key],
+            state.input[self.cls_input_key]
+        )
+        return seg_loss + cls_loss
+
+    def on_stage_start(self, state: RunnerState):
+        assert state.criterion is not None
+
+    def on_batch_end(self, state: RunnerState):
+        criterion = state.get_key(
+            key="criterion", inner_key=self.criterion_key
+        )
+
+        loss = self._compute_loss(state, criterion) * self.multiplier
+
+        state.metrics.add_batch_value(metrics_dict={
+            self.prefix: loss.item(),
+        })
+
+        self._add_loss_to_state(state, loss)

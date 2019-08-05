@@ -72,7 +72,13 @@ class SIIMDataset(Dataset):
             image = np.transpose(image, (2, 0, 1)).astype(np.float32)
             mask = np.zeros((256, 256))
 
+        if mask.sum() == 0:
+            cls_target = 0
+        else:
+            cls_target = 1
+
         return {
             "images": image,
-            "targets": mask
+            "targets": mask,
+            "cls_targets": cls_target
         }
