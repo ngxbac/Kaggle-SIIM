@@ -20,7 +20,7 @@ stages:
     minimize_metric: False
 
   criterion_params:
-    criterion: BCEWithLogitsLoss
+    criterion: BCEFocalLossApex
 
   data_params:
     batch_size: 64

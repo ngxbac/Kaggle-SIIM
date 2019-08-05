@@ -27,7 +27,7 @@ registry.Callback(DiceCallbackApex)
 # Register criterions
 registry.Criterion(LabelSmoothingCrossEntropy)
 registry.Criterion(BCEDiceLossApex)
-registry.Criterion(BCELovaszLossApex)
+registry.Criterion(BCEFocalLossApex)
 
 # Register optimizers
 registry.Optimizer(AdamW)

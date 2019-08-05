@@ -108,16 +108,16 @@ class BCEDiceLossApex(nn.Module):
         return loss
 
 
-class BCELovaszLossApex(nn.Module):
+class BCEFocalLossApex(nn.Module):
     def __init__(
         self
     ):
         super().__init__()
         self.bce_loss = nn.BCEWithLogitsLoss()
-        self.lovasz_loss = FocalLossBinary()
+        self.focal_loss = FocalLossBinary()
 
     def forward(self, outputs, targets):
-        lovasz = self.lovasz_loss(outputs, targets)
+        focal = self.focal_loss(outputs, targets)
         bce = self.bce_loss(outputs, targets)
-        loss = lovasz + bce
+        loss = focal + bce
         return loss
