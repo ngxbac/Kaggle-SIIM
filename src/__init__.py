@@ -16,6 +16,7 @@ registry.Model(Unet)
 registry.Model(UnetSCSE)
 registry.Model(Res34Unetv4)
 registry.Model(UnetMix)
+registry.Model(UnetOC)
 
 # Register callbacks
 registry.Callback(LabelSmoothCriterionCallback)
